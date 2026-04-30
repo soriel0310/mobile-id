@@ -29,10 +29,62 @@ export default function App() {
   const [licenseScaleH, setLicenseScaleH] = useState<number>(() =>
     readSavedScale("mobileId.licenseScaleH", 1)
   );
+  const [licenseScaleWText, setLicenseScaleWText] = useState(() =>
+    licenseScaleW.toFixed(2)
+  );
+  const [licenseScaleHText, setLicenseScaleHText] = useState(() =>
+    licenseScaleH.toFixed(2)
+  );
   const [isEditMode, setIsEditMode] = useState(false);
   const [showAddIdToast, setShowAddIdToast] = useState(false);
   const addIdToastTimerRef = useRef<number | null>(null);
   const tapTimesRef = useRef<number[]>([]);
+
+  const clampScale = (value: number) => Math.min(5, Math.max(0.01, value));
+
+  const applyLicenseScaleW = (value: number) => {
+    const next = clampScale(value);
+    setLicenseScaleW(next);
+    try {
+      window.localStorage.setItem("mobileId.licenseScaleW", String(next));
+    } catch {}
+  };
+
+  const applyLicenseScaleH = (value: number) => {
+    const next = clampScale(value);
+    setLicenseScaleH(next);
+    try {
+      window.localStorage.setItem("mobileId.licenseScaleH", String(next));
+    } catch {}
+  };
+
+  const commitLicenseScaleWText = () => {
+    const value = parseFloat(licenseScaleWText);
+    if (Number.isFinite(value)) {
+      const next = clampScale(value);
+      setLicenseScaleW(next);
+      setLicenseScaleWText(String(next));
+      try {
+        window.localStorage.setItem("mobileId.licenseScaleW", String(next));
+      } catch {}
+    } else {
+      setLicenseScaleWText(licenseScaleW.toFixed(2));
+    }
+  };
+
+  const commitLicenseScaleHText = () => {
+    const value = parseFloat(licenseScaleHText);
+    if (Number.isFinite(value)) {
+      const next = clampScale(value);
+      setLicenseScaleH(next);
+      setLicenseScaleHText(String(next));
+      try {
+        window.localStorage.setItem("mobileId.licenseScaleH", String(next));
+      } catch {}
+    } else {
+      setLicenseScaleHText(licenseScaleH.toFixed(2));
+    }
+  };
 
   const handleLegalTap = () => {
     const nowMs = Date.now();
@@ -287,6 +339,12 @@ export default function App() {
                       onClick={() => {
                         setLicenseScaleW(1);
                         setLicenseScaleH(1);
+                        setLicenseScaleWText("1");
+                        setLicenseScaleHText("1");
+                        try {
+                          window.localStorage.setItem("mobileId.licenseScaleW", "1");
+                          window.localStorage.setItem("mobileId.licenseScaleH", "1");
+                        } catch {}
                       }}
                       className="text-[10px] text-gray-300 underline underline-offset-2"
                     >
@@ -302,34 +360,17 @@ export default function App() {
                       max="2"
                       step="0.01"
                       value={licenseScaleW}
-                      onChange={(e) =>
-                        setLicenseScaleW(parseFloat(e.target.value))
-                      }
+                      onChange={(e) => {
+                        const next = parseFloat(e.target.value);
+                        applyLicenseScaleW(next);
+                        setLicenseScaleWText(next.toFixed(2));
+                      }}
                       onClick={(e) => e.stopPropagation()}
                       className="flex-1 accent-blue-400"
                     />
-                    <input
-                      type="number"
-                      min="0.5"
-                      max="2"
-                      step="0.01"
-                      value={licenseScaleW.toFixed(2)}
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value);
-                        if (Number.isFinite(value)) {
-                          const next = Math.min(2, Math.max(0.5, value));
-                          setLicenseScaleW(next);
-                          try {
-                            window.localStorage.setItem("mobileId.licenseScaleW", String(next));
-                          } catch {}
-                        }
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onTouchStart={(e) => e.stopPropagation()}
-                      className="w-14 bg-white/20 text-white text-[10px] font-bold text-center rounded px-1 py-0.5 outline-none"
-                    />
-                    <span className="text-[10px] font-bold">x</span>
+                    <span className="text-[10px] font-bold tabular-nums w-9 text-right">
+                      {licenseScaleW.toFixed(2)}x
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -340,34 +381,17 @@ export default function App() {
                       max="2"
                       step="0.01"
                       value={licenseScaleH}
-                      onChange={(e) =>
-                        setLicenseScaleH(parseFloat(e.target.value))
-                      }
+                      onChange={(e) => {
+                        const next = parseFloat(e.target.value);
+                        applyLicenseScaleH(next);
+                        setLicenseScaleHText(next.toFixed(2));
+                      }}
                       onClick={(e) => e.stopPropagation()}
                       className="flex-1 accent-blue-400"
                     />
-                    <input
-                      type="number"
-                      min="0.5"
-                      max="2"
-                      step="0.01"
-                      value={licenseScaleH.toFixed(2)}
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value);
-                        if (Number.isFinite(value)) {
-                          const next = Math.min(2, Math.max(0.5, value));
-                          setLicenseScaleH(next);
-                          try {
-                            window.localStorage.setItem("mobileId.licenseScaleH", String(next));
-                          } catch {}
-                        }
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onTouchStart={(e) => e.stopPropagation()}
-                      className="w-14 bg-white/20 text-white text-[10px] font-bold text-center rounded px-1 py-0.5 outline-none"
-                    />
-                    <span className="text-[10px] font-bold">x</span>
+                    <span className="text-[10px] font-bold tabular-nums w-9 text-right">
+                      {licenseScaleH.toFixed(2)}x
+                    </span>
                   </div>
 
                   <p className="text-[10px] text-gray-300 text-center pt-0.5">
