@@ -297,20 +297,20 @@ export default function App() {
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-gray-300 w-6">가로</span>
                     <input
-  type="range"
-  min="0.5"
-  max="2"
-  step="0.01"
-  value={licenseScaleW}
-  onChange={(e) =>
-    setLicenseScaleW(parseFloat(e.target.value))
-  }
-  onClick={(e) => e.stopPropagation()}
-  onPointerDown={(e) => e.stopPropagation()}
-  onTouchStart={(e) => e.stopPropagation()}
-  style={{ touchAction: "auto" }}
-  className="flex-1 accent-blue-400"
-/>
+                      type="range"
+                      min="0.5"
+                      max="2"
+                      step="0.01"
+                      value={licenseScaleW}
+                      onChange={(e) =>
+                        setLicenseScaleW(parseFloat(e.target.value))
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onTouchStart={(e) => e.stopPropagation()}
+                      style={{ touchAction: "auto" }}
+                      className="flex-1 accent-blue-400"
+                    />
                     <span className="text-[10px] font-bold tabular-nums w-9 text-right">
                       {licenseScaleW.toFixed(2)}x
                     </span>
@@ -319,21 +319,20 @@ export default function App() {
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-gray-300 w-6">세로</span>
                     <input
-                      <input
-  type="range"
-  min="0.5"
-  max="2"
-  step="0.01"
-  value={licenseScaleH}
-  onChange={(e) =>
-    setLicenseScaleH(parseFloat(e.target.value))
-  }
-  onClick={(e) => e.stopPropagation()}
-  onPointerDown={(e) => e.stopPropagation()}
-  onTouchStart={(e) => e.stopPropagation()}
-  style={{ touchAction: "auto" }}
-  className="flex-1 accent-blue-400"
-/>
+                      type="range"
+                      min="0.5"
+                      max="2"
+                      step="0.01"
+                      value={licenseScaleH}
+                      onChange={(e) =>
+                        setLicenseScaleH(parseFloat(e.target.value))
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onTouchStart={(e) => e.stopPropagation()}
+                      style={{ touchAction: "auto" }}
+                      className="flex-1 accent-blue-400"
+                    />
                     <span className="text-[10px] font-bold tabular-nums w-9 text-right">
                       {licenseScaleH.toFixed(2)}x
                     </span>
