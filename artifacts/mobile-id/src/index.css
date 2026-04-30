@@ -228,10 +228,6 @@ html, body {
   touch-action: pan-x pan-y;
 }
 
-/* 더 강하게 제스처 제한 */
-* {
-  touch-action: manipulation;
-}
 
 /* 텍스트 선택 방지 */
 body {
