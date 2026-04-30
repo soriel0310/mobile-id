@@ -33,60 +33,6 @@ export default function App() {
   const [showAddIdToast, setShowAddIdToast] = useState(false);
   const addIdToastTimerRef = useRef<number | null>(null);
   const tapTimesRef = useRef<number[]>([]);
-  const licenseDragRef = useRef<{
-    startX: number;
-    startY: number;
-    startW: number;
-    startH: number;
-  } | null>(null);
-
-  const clampScale = (value: number) => Math.min(2, Math.max(0.5, value));
-
-  const saveLicenseScale = (w: number, h: number) => {
-    try {
-      window.localStorage.setItem("mobileId.licenseScaleW", String(w));
-      window.localStorage.setItem("mobileId.licenseScaleH", String(h));
-    } catch {}
-  };
-
-  const handleLicensePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isEditMode) return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    licenseDragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startW: licenseScaleW,
-      startH: licenseScaleH,
-    };
-
-    e.currentTarget.setPointerCapture?.(e.pointerId);
-  };
-
-  const handleLicensePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isEditMode || !licenseDragRef.current) return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    const dx = e.clientX - licenseDragRef.current.startX;
-    const dy = e.clientY - licenseDragRef.current.startY;
-
-    const nextW = clampScale(licenseDragRef.current.startW + dx / 180);
-    const nextH = clampScale(licenseDragRef.current.startH + dy / 180);
-
-    setLicenseScaleW(nextW);
-    setLicenseScaleH(nextH);
-  };
-
-  const handleLicensePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isEditMode) return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    licenseDragRef.current = null;
-    saveLicenseScale(licenseScaleW, licenseScaleH);
-  };
 
   const handleLegalTap = () => {
     const nowMs = Date.now();
@@ -315,16 +261,9 @@ export default function App() {
             <div className="card-face card-face-back shadow-2xl bg-white overflow-hidden relative">
               <div
                 className="license-frame"
-                onPointerDown={handleLicensePointerDown}
-                onPointerMove={handleLicensePointerMove}
-                onPointerUp={handleLicensePointerUp}
-                onPointerCancel={handleLicensePointerUp}
-                onClick={(e) => e.stopPropagation()}
                 style={{
                   ['--license-scale-w' as string]: licenseScaleW,
                   ['--license-scale-h' as string]: licenseScaleH,
-                  touchAction: isEditMode ? "none" : "auto",
-                  cursor: isEditMode ? "grab" : "pointer",
                 }}
               >
                 <img
@@ -339,9 +278,6 @@ export default function App() {
                 <div
                   className="absolute top-3 left-3 right-3 z-30 bg-black/80 text-white rounded-2xl px-4 py-3 backdrop-blur-md shadow-xl space-y-2.5"
                   onClick={(e) => e.stopPropagation()}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onPointerMove={(e) => e.stopPropagation()}
-                  style={{ touchAction: "auto" }}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-semibold tracking-wide uppercase text-blue-300">
@@ -370,10 +306,6 @@ export default function App() {
                         setLicenseScaleW(parseFloat(e.target.value))
                       }
                       onClick={(e) => e.stopPropagation()}
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onPointerMove={(e) => e.stopPropagation()}
-                      onTouchStart={(e) => e.stopPropagation()}
-                      style={{ touchAction: "auto" }}
                       className="flex-1 accent-blue-400"
                     />
                     <span className="text-[10px] font-bold tabular-nums w-9 text-right">
@@ -393,10 +325,6 @@ export default function App() {
                         setLicenseScaleH(parseFloat(e.target.value))
                       }
                       onClick={(e) => e.stopPropagation()}
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onPointerMove={(e) => e.stopPropagation()}
-                      onTouchStart={(e) => e.stopPropagation()}
-                      style={{ touchAction: "auto" }}
                       className="flex-1 accent-blue-400"
                     />
                     <span className="text-[10px] font-bold tabular-nums w-9 text-right">
