@@ -277,14 +277,15 @@ export default function App() {
             </div>
 
             <div className="card-face card-face-back shadow-2xl bg-white overflow-hidden relative">
-              <div
-                className="license-frame"
-                style={{
-                  ["--license-scale-w" as string]: licenseScaleW,
-                  ["--license-scale-h" as string]: licenseScaleH,
-                }}
-              >
-                <img src={licenseImg} alt="운전면허증" className="license-fit max-w-none" />
+              <div className="license-frame">
+                <img
+                  src={licenseImg}
+                  alt="운전면허증"
+                  className="license-fit max-w-none"
+                  style={{
+                    transform: `translate(-50%, -50%) rotate(90deg) scale(${licenseScaleH}, ${licenseScaleW})`,
+                  }}
+                />
               </div>
 
               <div className="holo-shine" />
