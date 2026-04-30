@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "모바일 신분증"
+version = "1.0.0"
+id = "artifacts/mobile-id"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21970
+
+[services.development]
+run = "pnpm --filter @workspace/mobile-id run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/mobile-id", "run", "build" ]
+publicDir = "artifacts/mobile-id/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21970"
+BASE_PATH = "/"
