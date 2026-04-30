@@ -23,36 +23,47 @@ export default function App() {
     const parsed = saved ? parseFloat(saved) : NaN;
     return Number.isFinite(parsed) ? parsed : fallback;
   };
+
   const [licenseScaleW, setLicenseScaleW] = useState<number>(() =>
     readSavedScale("mobileId.licenseScaleW", 1)
   );
   const [licenseScaleH, setLicenseScaleH] = useState<number>(() =>
     readSavedScale("mobileId.licenseScaleH", 1)
   );
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [showAddIdToast, setShowAddIdToast] = useState(false);
   const addIdToastTimerRef = useRef<number | null>(null);
   const tapTimesRef = useRef<number[]>([]);
+
+  const changeScaleW = (amount: number) => {
+    setLicenseScaleW((prev) => {
+      const next = +(prev + amount).toFixed(2);
+      return Math.min(2, Math.max(0.5, next));
+    });
+  };
+
+  const changeScaleH = (amount: number) => {
+    setLicenseScaleH((prev) => {
+      const next = +(prev + amount).toFixed(2);
+      return Math.min(2, Math.max(0.5, next));
+    });
+  };
 
   const handleLegalTap = () => {
     const nowMs = Date.now();
     tapTimesRef.current = [...tapTimesRef.current, nowMs].filter(
       (t) => nowMs - t < 1200
     );
+
     if (tapTimesRef.current.length >= 3) {
       tapTimesRef.current = [];
       setIsEditMode((prev) => {
         const next = !prev;
         if (!next) {
           try {
-            window.localStorage.setItem(
-              "mobileId.licenseScaleW",
-              String(licenseScaleW)
-            );
-            window.localStorage.setItem(
-              "mobileId.licenseScaleH",
-              String(licenseScaleH)
-            );
+            window.localStorage.setItem("mobileId.licenseScaleW", String(licenseScaleW));
+            window.localStorage.setItem("mobileId.licenseScaleH", String(licenseScaleH));
           } catch {}
         }
         return next;
@@ -134,7 +145,6 @@ export default function App() {
           backgroundPosition: "center",
         }}
       >
-        {/* Top Header */}
         <div className="absolute top-0 w-full h-16 flex items-center justify-between px-6 z-20 text-[#1e293b]">
           <button className="p-2 -ml-2 active:scale-95 transition-transform">
             <Menu className="w-6 h-6" strokeWidth={2} />
@@ -145,13 +155,12 @@ export default function App() {
           </button>
         </div>
 
-        {/* Info row above card — only visible when card is flipped to back */}
         <div
           className={`absolute left-7 right-7 z-20 flex items-center justify-between text-[12px] text-gray-700 transition-opacity duration-300 ${
-            isCardFlipped ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            isCardFlipped ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
           style={{
-            top: 'clamp(78px, calc((100dvh - 568px) / 2 - 32px), 115px)',
+            top: "clamp(78px, calc((100dvh - 568px) / 2 - 32px), 115px)",
           }}
         >
           <button
@@ -167,30 +176,33 @@ export default function App() {
               </span>
             )}
           </button>
+
           <button className="flex items-center gap-1.5 active:scale-95 transition-transform">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
             <span className="font-medium">흔들기 설정</span>
           </button>
         </div>
 
-        {/* Black backing card — slides out from the left after the card finishes flipping */}
         <div
           className={`absolute left-10 right-10 z-10 pointer-events-none transition-transform duration-500 ${
-            showBackPanel ? 'translate-x-3.5' : 'translate-x-0'
+            showBackPanel ? "translate-x-3.5" : "translate-x-0"
           }`}
           style={{
-            top: 'clamp(116px, calc((100dvh - 568px) / 2 + 32px), 147px)',
-            height: 'min(480px, calc(100dvh - 232px))',
+            top: "clamp(116px, calc((100dvh - 568px) / 2 + 32px), 147px)",
+            height: "min(480px, calc(100dvh - 232px))",
           }}
         >
           <div
             className={`absolute top-0 bottom-0 -left-7 right-0 rounded-[28px] bg-zinc-900 shadow-2xl transition-all duration-500 overflow-hidden ${
-              showBackPanel ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-7'
+              showBackPanel ? "opacity-100 translate-x-0" : "opacity-0 translate-x-7"
             }`}
           >
             <div
               className="absolute top-1/2 left-3.5"
-              style={{ transform: 'translate(-50%, -50%) rotate(90deg)', transformOrigin: 'center' }}
+              style={{
+                transform: "translate(-50%, -50%) rotate(90deg)",
+                transformOrigin: "center",
+              }}
             >
               <div className="flex items-center gap-2 whitespace-nowrap text-[11px]">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
@@ -201,40 +213,45 @@ export default function App() {
           </div>
         </div>
 
-        {/* ID Card (flippable) */}
         <div
           className={`absolute left-10 right-10 z-20 card-flip-container animate-in fade-in slide-in-from-bottom-8 duration-700 cursor-pointer transition-transform ease-out ${
-            showBackPanel ? 'translate-x-3.5' : 'translate-x-0'
+            showBackPanel ? "translate-x-3.5" : "translate-x-0"
           }`}
           style={{
-            transitionDuration: '500ms',
-            top: 'clamp(116px, calc((100dvh - 568px) / 2 + 32px), 147px)',
-            height: 'min(480px, calc(100dvh - 232px))',
+            transitionDuration: "500ms",
+            top: "clamp(116px, calc((100dvh - 568px) / 2 + 32px), 147px)",
+            height: "min(480px, calc(100dvh - 232px))",
           }}
           onClick={() => {
             if (isEditMode) return;
             setIsCardFlipped((v) => !v);
           }}
         >
-          <div className={`card-flip-inner ${isCardFlipped ? 'is-flipped' : ''}`}>
-            {/* FRONT FACE */}
-            <div className="card-face card-face-front shadow-2xl glass-card p-7 flex flex-col justify-between" style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 100%)',
-              border: '1px solid rgba(255,255,255,0.5)',
-            }}>
+          <div className={`card-flip-inner ${isCardFlipped ? "is-flipped" : ""}`}>
+            <div
+              className="card-face card-face-front shadow-2xl glass-card p-7 flex flex-col justify-between"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 100%)",
+                border: "1px solid rgba(255,255,255,0.5)",
+              }}
+            >
               <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 to-purple-100/10 pointer-events-none mix-blend-overlay"></div>
 
               <div className="relative z-10 flex flex-col h-full items-center text-center">
                 <div className="pt-1">
                   <h2 className="text-[20px] font-bold text-gray-900 tracking-tight">자동차운전면허증</h2>
-                  <p className="text-gray-500 text-[12px] font-medium mt-0.5 tracking-wide">Driver's License</p>
+                  <p className="text-gray-500 text-[12px] font-medium mt-0.5 tracking-wide">Driver&apos;s License</p>
                 </div>
 
                 <div className="mt-5 w-[120px] h-[150px] rounded-[6px] overflow-hidden shadow-md border border-white/80 relative bg-white">
                   <img src={portraitImg} alt="유은찬" className="w-full h-full object-cover" />
                 </div>
 
-                <h3 className="mt-5 text-[30px] font-extrabold text-gray-900" style={{ letterSpacing: '0.25em', paddingLeft: '0.25em' }}>
+                <h3
+                  className="mt-5 text-[30px] font-extrabold text-gray-900"
+                  style={{ letterSpacing: "0.25em", paddingLeft: "0.25em" }}
+                >
                   유은찬
                 </h3>
 
@@ -246,7 +263,9 @@ export default function App() {
 
                 <div className="mt-auto pt-4 flex items-center justify-center">
                   <div className="relative inline-block">
-                    <span className="relative z-10 text-[13px] font-semibold text-gray-700 tracking-tight">인천광역시경찰청장</span>
+                    <span className="relative z-10 text-[13px] font-semibold text-gray-700 tracking-tight">
+                      인천광역시경찰청장
+                    </span>
                     <img
                       src={sealImg}
                       alt="직인"
@@ -257,26 +276,22 @@ export default function App() {
               </div>
             </div>
 
-            {/* BACK FACE - rotated license image */}
             <div className="card-face card-face-back shadow-2xl bg-white overflow-hidden relative">
               <div
                 className="license-frame"
                 style={{
-                  ['--license-scale-w' as string]: licenseScaleW,
-                  ['--license-scale-h' as string]: licenseScaleH,
+                  ["--license-scale-w" as string]: licenseScaleW,
+                  ["--license-scale-h" as string]: licenseScaleH,
                 }}
               >
-                <img
-                  src={licenseImg}
-                  alt="운전면허증"
-                  className="license-fit max-w-none"
-                />
+                <img src={licenseImg} alt="운전면허증" className="license-fit max-w-none" />
               </div>
+
               <div className="holo-shine" />
 
               {isEditMode && (
                 <div
-                  className="absolute top-3 left-3 right-3 z-30 bg-black/80 text-white rounded-2xl px-4 py-3 backdrop-blur-md shadow-xl space-y-2.5"
+                  className="absolute top-3 left-3 right-3 z-30 bg-black/80 text-white rounded-2xl px-4 py-3 backdrop-blur-md shadow-xl space-y-3"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center justify-between">
@@ -284,7 +299,8 @@ export default function App() {
                       편집 모드
                     </span>
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setLicenseScaleW(1);
                         setLicenseScaleH(1);
                       }}
@@ -296,44 +312,62 @@ export default function App() {
 
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-gray-300 w-6">가로</span>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="2"
-                      step="0.01"
-                      value={licenseScaleW}
-                      onChange={(e) =>
-                        setLicenseScaleW(parseFloat(e.target.value))
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex-1 accent-blue-400"
-                    />
-                    <span className="text-[10px] font-bold tabular-nums w-9 text-right">
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeScaleW(-0.01);
+                      }}
+                      className="w-8 h-8 rounded-lg bg-white/15 text-white text-lg font-bold active:scale-95"
+                    >
+                      -
+                    </button>
+
+                    <span className="flex-1 text-center text-[12px] font-bold tabular-nums">
                       {licenseScaleW.toFixed(2)}x
                     </span>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeScaleW(0.01);
+                      }}
+                      className="w-8 h-8 rounded-lg bg-blue-500 text-white text-lg font-bold active:scale-95"
+                    >
+                      +
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-gray-300 w-6">세로</span>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="2"
-                      step="0.01"
-                      value={licenseScaleH}
-                      onChange={(e) =>
-                        setLicenseScaleH(parseFloat(e.target.value))
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex-1 accent-blue-400"
-                    />
-                    <span className="text-[10px] font-bold tabular-nums w-9 text-right">
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeScaleH(-0.01);
+                      }}
+                      className="w-8 h-8 rounded-lg bg-white/15 text-white text-lg font-bold active:scale-95"
+                    >
+                      -
+                    </button>
+
+                    <span className="flex-1 text-center text-[12px] font-bold tabular-nums">
                       {licenseScaleH.toFixed(2)}x
                     </span>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeScaleH(0.01);
+                      }}
+                      className="w-8 h-8 rounded-lg bg-blue-500 text-white text-lg font-bold active:scale-95"
+                    >
+                      +
+                    </button>
                   </div>
 
                   <p className="text-[10px] text-gray-300 text-center pt-0.5">
-                    "법적 효력"을 빠르게 3번 누르면 저장됩니다
+                    &quot;법적 효력&quot;을 빠르게 3번 누르면 저장됩니다
                   </p>
                 </div>
               )}
@@ -341,11 +375,12 @@ export default function App() {
           </div>
         </div>
 
-        {/* Bottom Action Bar */}
         <div className="absolute bottom-0 left-0 right-0 z-20">
-          <div className={`relative flex items-stretch bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgb(0,0,0,0.06)] border-t border-white/60 py-4 transition-[border-radius] duration-200 ${
-            isQrModalOpen ? 'rounded-t-none' : 'rounded-t-[28px]'
-          }`}>
+          <div
+            className={`relative flex items-stretch bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgb(0,0,0,0.06)] border-t border-white/60 py-4 transition-[border-radius] duration-200 ${
+              isQrModalOpen ? "rounded-t-none" : "rounded-t-[28px]"
+            }`}
+          >
             <button
               onClick={() => setIsQrModalOpen((v) => !v)}
               className="flex-1 h-14 flex items-center justify-center gap-3 active:bg-gray-50 transition-all"
@@ -367,22 +402,19 @@ export default function App() {
           </div>
         </div>
 
-        {/* QR Bottom Sheet — slides up from above the action bar */}
-        {/* Backdrop (above card, below action bar) */}
         <div
           onClick={() => setIsQrModalOpen(false)}
           className={`absolute top-0 left-0 right-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
-            isQrModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            isQrModalOpen ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
-          style={{ bottom: '88px' }}
+          style={{ bottom: "88px" }}
         />
 
-        {/* Decorative "신분증 추가" pill — appears when card is flipped to back face */}
         <div
           className={`absolute left-0 right-0 z-30 flex justify-center transition-opacity duration-300 ${
-            isCardFlipped ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            isCardFlipped ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
-          style={{ bottom: 'calc(88px + 72px)' }}
+          style={{ bottom: "calc(88px + 72px)" }}
         >
           <button
             onClick={(e) => {
@@ -405,7 +437,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* Input-blocking overlay while toast is visible */}
         {showAddIdToast && (
           <div
             className="absolute inset-0 z-[55]"
@@ -414,30 +445,25 @@ export default function App() {
           />
         )}
 
-        {/* Toast popup — "신분증 추가" 안내 */}
         <div
           className={`absolute left-1/2 -translate-x-1/2 z-[60] pointer-events-none transition-all duration-200 ${
-            showAddIdToast
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-2'
+            showAddIdToast ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
           }`}
-          style={{ bottom: 'calc(50% - 24px)' }}
+          style={{ bottom: "calc(50% - 24px)" }}
         >
           <div className="bg-black/85 text-white text-[13px] font-medium rounded-xl px-4 py-3 shadow-2xl backdrop-blur-md whitespace-nowrap">
             모바일 신분증 콜센터(1688-0990)로 문의
           </div>
         </div>
 
-        {/* Sheet */}
         <div
           className="absolute left-0 right-0 z-40 bg-white rounded-t-[28px] shadow-[0_-12px_40px_rgba(0,0,0,0.18)] transition-transform duration-300 ease-out"
           style={{
-            bottom: '88px',
-            transform: isQrModalOpen ? 'translateY(0)' : 'translateY(calc(100% + 88px))',
+            bottom: "88px",
+            transform: isQrModalOpen ? "translateY(0)" : "translateY(calc(100% + 88px))",
           }}
         >
           <div className="flex items-center px-6 py-5 gap-4">
-            {/* Left: timer */}
             <div className="flex-shrink min-w-0 pr-1">
               <div className="flex items-center gap-1 mb-1 text-gray-500">
                 <Clock className="w-3.5 h-3.5" strokeWidth={2.2} />
@@ -452,13 +478,12 @@ export default function App() {
               </p>
             </div>
 
-            {/* Right: QR */}
             <div className="ml-auto p-2 bg-white rounded-xl border border-gray-100">
               <QRCodeSVG value={`M-ID:YUEUNCHAN:${qrToken}`} size={140} level="H" fgColor="#111" />
             </div>
           </div>
         </div>
-        {/* Camera Modal */}
+
         {isCameraModalOpen && (
           <div className="absolute inset-0 z-50 bg-black animate-in fade-in flex flex-col">
             <div className="absolute top-0 w-full h-24 bg-gradient-to-b from-black/80 to-transparent z-10 flex items-start justify-end p-6">
